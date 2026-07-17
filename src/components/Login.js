@@ -1,10 +1,18 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import Header from "./Header";
+import { validateData } from "../utility/validate";
 
 const Login = () => {
   const [isSignUpForm, updateSignUpForm] = useState(true);
+  const [errormes, seterrorms] = useState("");
   const toggleForm = () => {
     updateSignUpForm(!isSignUpForm);
+  };
+  const email = useRef(null);
+  const password = useRef(null);
+  const handleValidation = () => {
+    const errormsg = validateData(email.current.value, password.current.value);
+    seterrorms(errormsg);
   };
   return (
     <div className="relative">
@@ -17,7 +25,10 @@ const Login = () => {
         />
       </div>
 
-      <form className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3/12 bg-black/50 p-12 text-white rounded-lg">
+      <form
+        onSubmit={(e) => e.preventDefault()}
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3/12 bg-black/50 p-12 text-white rounded-lg"
+      >
         <h1 className="font-bold text-3xl py-4">
           {isSignUpForm ? "Sign In" : "Sign Up"}
         </h1>
@@ -29,18 +40,23 @@ const Login = () => {
           />
         )}
         <input
+          ref={email}
           type="text"
           placeholder="Email Address"
           className="bg-gray-700 w-full p-4 my-4 rounded"
         />
 
         <input
+          ref={password}
           type="password"
           placeholder="Password"
           className="bg-gray-700 w-full p-4 my-4 rounded"
         />
-
-        <button className="p-4 my-6 bg-red-700 w-full rounded-lg">
+        <p className="text-red-600 font-bold text-lg">{errormes}</p>
+        <button
+          onClick={handleValidation}
+          className="p-4 my-6 bg-red-700 w-full rounded-lg"
+        >
           {isSignUpForm ? "Sign In" : "Sign Up"}
         </button>
 
