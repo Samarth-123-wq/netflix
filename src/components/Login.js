@@ -1,6 +1,11 @@
 import React, { useRef, useState } from "react";
 import Header from "./Header";
 import { validateData } from "../utility/validate";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
+import { auth } from "../utility/firebase";
 
 const Login = () => {
   const [isSignUpForm, updateSignUpForm] = useState(true);
@@ -13,6 +18,35 @@ const Login = () => {
   const handleValidation = () => {
     const errormsg = validateData(email.current.value, password.current.value);
     seterrorms(errormsg);
+    if (errormsg !== null) return;
+
+    if (isSignUpForm) {
+      signInWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+          const user = userCredential.user;
+          console.log(user);
+        })
+        .catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          seterrorms(errorCode + " " + errorMessage);
+        });
+    } else {
+      createUserWithEmailAndPassword(
+        auth,
+        email.current.value,
+        password.current.value,
+      )
+        .then((userCredential) => {
+          const user = userCredential.user;
+          console.log(user);
+        })
+        .catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          seterrorms(errorCode + " " + errorMessage);
+        });
+    }
   };
   return (
     <div className="relative">
