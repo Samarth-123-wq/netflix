@@ -4,9 +4,13 @@ import { validateData } from "../utility/validate";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  updateProfile,
 } from "firebase/auth";
 import { auth } from "../utility/firebase";
+import { adduser } from "../utility/Slice";
+
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
 
 const Login = () => {
   const [isSignUpForm, updateSignUpForm] = useState(true);
@@ -17,13 +21,19 @@ const Login = () => {
   };
   const email = useRef(null);
   const password = useRef(null);
+  const name = useRef(null);
+  const dispatch = useDispatch();
   const handleValidation = () => {
     const errormsg = validateData(email.current.value, password.current.value);
     seterrorms(errormsg);
     if (errormsg !== null) return;
 
     if (isSignUpForm) {
-      signInWithEmailAndPassword(auth, email, password)
+      signInWithEmailAndPassword(
+        auth,
+        email.current.value,
+        password.current.value,
+      )
         .then((userCredential) => {
           const user = userCredential.user;
           console.log(user);
@@ -42,8 +52,28 @@ const Login = () => {
       )
         .then((userCredential) => {
           const user = userCredential.user;
-          console.log(user);
-          navigate("/browse");
+          updateProfile(user, {
+            displayName: name.current.value,
+            photoURL: "https://example.com/jane-q-user/profile.jpg",
+          })
+            .then(() => {
+              console.log(user);
+              console.log(auth.currentUser);
+              const { uid, email, displayName, photoURL } = auth.currentUser;
+              dispatch(
+                adduser({
+                  uid: uid,
+                  email: email,
+                  displayName: displayName,
+                  photoURL: photoURL,
+                }),
+              );
+              console.log(user);
+              navigate("/browse");
+            })
+            .catch((error) => {
+              seterrorms(error.message);
+            });
         })
         .catch((error) => {
           const errorCode = error.code;
@@ -72,6 +102,7 @@ const Login = () => {
         </h1>
         {!isSignUpForm && (
           <input
+            ref={name}
             type="text"
             placeholder="Name"
             className="bg-gray-700 w-full p-4 my-4 rounded"
