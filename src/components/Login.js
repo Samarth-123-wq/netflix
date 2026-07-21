@@ -8,14 +8,12 @@ import {
 } from "firebase/auth";
 import { auth } from "../utility/firebase";
 import { adduser } from "../utility/Slice";
-
-import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
+import { PROFILE_URL } from "../utility/constants";
 
 const Login = () => {
   const [isSignUpForm, updateSignUpForm] = useState(true);
   const [errormes, seterrorms] = useState("");
-  const navigate = useNavigate();
   const toggleForm = () => {
     updateSignUpForm(!isSignUpForm);
   };
@@ -37,7 +35,6 @@ const Login = () => {
         .then((userCredential) => {
           const user = userCredential.user;
           console.log(user);
-          navigate("/browse");
         })
         .catch((error) => {
           const errorCode = error.code;
@@ -54,7 +51,7 @@ const Login = () => {
           const user = userCredential.user;
           updateProfile(user, {
             displayName: name.current.value,
-            photoURL: "https://example.com/jane-q-user/profile.jpg",
+            photoURL: PROFILE_URL,
           })
             .then(() => {
               console.log(user);
@@ -69,7 +66,6 @@ const Login = () => {
                 }),
               );
               console.log(user);
-              navigate("/browse");
             })
             .catch((error) => {
               seterrorms(error.message);

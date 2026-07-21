@@ -1,29 +1,47 @@
-import React from "react";
-import { useSelector } from "react-redux";
-import { signOut } from "firebase/auth";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { onAuthStateChanged, signOut } from "firebase/auth";
 import { auth } from "../utility/firebase";
 import { useNavigate } from "react-router-dom";
+import { adduser, removeuser } from "../utility/Slice";
+import { LOGO } from "../utility/constants";
 
 const Header = () => {
   const sele = useSelector((store) => store.user);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        const { uid, email, displayName, photoURL } = user;
+        dispatch(
+          adduser({
+            uid: uid,
+            email: email,
+            displayName: displayName,
+            photoURL: photoURL,
+          }),
+        );
+        navigate("/browse");
+      } else {
+        dispatch(removeuser());
+        navigate("/");
+      }
+    });
+    // unsubscribe when the component unmounts
+    return () => unsubscribe();
+  }, []);
   console.log(sele);
   const handleSignout = () => {
     signOut(auth)
-      .then(() => {
-        navigate("/");
-      })
+      .then(() => {})
       .catch((error) => {
         navigate("/error");
       });
   };
   return (
     <div className="absolute px-8 py-2  bg-gradient-to-b from-black z-20 w-full flex justify-between">
-      <img
-        className="w-44"
-        src="https://occ.a.nflxso.net/dnmt/api/v6/iL4oJVDYZ8KLSrJ6eG2OwtghbfQ/AAAAAUkLCBtHBbguPPqzaFOzEv4Pw_eS79j0y7ADR4hkB30-HkahpsUb5yvfzgKsfU2oNda-7hpkfYLnXhjc23JVT07PHsGgfsaHAB7qOhy2_5gn-nuKOVSUSBzn-i-O3ea2QQaXx3PYkHes.svg"
-        alt="logo"
-      />
+      <img className="w-44" src={LOGO} alt="logo" />
       {sele && (
         <div className="flex p-2">
           <img className="w-12 h-12" src={sele.photoURL} alt="user" />
