@@ -5,11 +5,15 @@ import { auth } from "../utility/firebase";
 import { useNavigate } from "react-router-dom";
 import { adduser, removeuser } from "../utility/Slice";
 import { LOGO } from "../utility/constants";
+import { GptToggleView } from "../utility/GptSlice";
 
 const Header = () => {
   const sele = useSelector((store) => store.user);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const handleToggleGpt = () => {
+    dispatch(GptToggleView());
+  };
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
@@ -44,6 +48,12 @@ const Header = () => {
       <img className="w-44" src={LOGO} alt="logo" />
       {sele && (
         <div className="flex p-2">
+          <button
+            className="text-white bg-purple-700 px-4 py-4 rounded-lg"
+            onClick={handleToggleGpt}
+          >
+            Gpt Search
+          </button>
           <img className="w-12 h-12" src={sele.photoURL} alt="user" />
           <button className="font-bold text-white" onClick={handleSignout}>
             Sign Out
